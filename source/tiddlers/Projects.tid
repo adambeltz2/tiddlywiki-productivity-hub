@@ -1,0 +1,19 @@
+title: Projects
+
+\whitespace trim
+<<prod-nav>>
+<div class="prod-hero"><span></span><$button class="prod-btn primary" actions="""<$action-navigate $to="New Project"/>""">＋ New project</$button></div>
+<$list filter="active on-hold done archived" variable="st">
+<$list filter="[function[prod.projects]field:status<st>limit[1]]" variable="_a">
+<h2 class="prod-h2"><$text text={{{ [<st>match[on-hold]then[On hold]] ~[<st>titlecase[]] }}}/></h2>
+<div class="prod-cards">
+<$list filter="[function[prod.projects]field:status<st>sort[title]]">
+<div class="prod-card prod-projcard" style=`border-top-color:${ [{!!color}else[#7c8aa5]] }$`>
+<h3><$link to=<<currentTiddler>>><$text text=<<currentTiddler>>/></$link></h3>
+<$transclude $variable="project-stats" p=<<currentTiddler>>/>
+<div class="prod-task-meta"><<due-badge>> <span class="prod-muted"><$text text={{{ [function[prod.notes]tag<currentTiddler>count[]addsuffix[ notes · ]] [function[prod.open]tag<currentTiddler>count[]addsuffix[ open]] +[join[]] }}}/></span></div>
+</div>
+</$list>
+</div>
+</$list>
+</$list>

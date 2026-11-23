@@ -1,0 +1,9 @@
+title: $:/prod/ViewTemplate/backlinks
+tags: $:/tags/ViewTemplate
+list-after: $:/core/ui/ViewTemplate/body
+
+\whitespace trim
+<$list filter="[all[current]tag[Note]] [all[current]tag[Task]] +[limit[1]]" variable="_n">
+<$list filter="[all[current]backlinks[]!is[system]limit[1]]" variable="_b"><div class="prod-card"><h3>Linked from</h3>
+<$list filter="[all[current]backlinks[]!is[system]sort[title]]"><div class="prod-mini"><$link/></div></$list></div></$list>
+</$list>

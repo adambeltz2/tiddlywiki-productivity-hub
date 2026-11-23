@@ -1,0 +1,12 @@
+title: Review
+
+\whitespace trim
+<<prod-nav>>
+<p class="prod-muted">A 10-minute reset. Work top to bottom.</p>
+<section class="prod-card"><h3>1 · Clear the inbox</h3><<task-list filter:"[function[prod.open]!has[project]]" empty:"Inbox zero ✓">></section>
+<section class="prod-card"><h3>2 · Deal with overdue</h3><<task-list filter:"[function[prod.open]daysin[],[-1]sort[due]]" empty:"Nothing overdue ✓">></section>
+<section class="prod-card"><h3>3 · Chase what you're waiting on</h3><<task-list filter:"[function[prod.open]field:status[waiting]]" empty:"Nothing waiting ✓">></section>
+<section class="prod-card"><h3>4 · Stalled projects <span class="prod-muted">active, but no open tasks</span></h3>
+<$list filter="[function[prod.active-projects]] :filter[<currentTiddler>tagging[]tag[Task]!status[done]count[]match[0]]" emptyMessage="""<div class="prod-empty">Every active project has a next action ✓</div>"""><div class="prod-mini"><$link to=<<currentTiddler>>><$text text=<<currentTiddler>>/></$link> – add a next action or mark it done.</div></$list></section>
+<section class="prod-card"><h3>5 · Look at the week ahead</h3><<task-list filter:"[function[prod.open]daysin[0],[7]sort[due]]" empty:"A clear week.">></section>
+<section class="prod-card"><h3>6 · Celebrate <span class="prod-muted">completed in the last 7 days</span></h3><<task-list filter:"[function[prod.tasks]status[done]daysin:completed[-6],[0]sort[completed]reverse[]]" empty:"Nothing finished yet — you've got this.">></section>

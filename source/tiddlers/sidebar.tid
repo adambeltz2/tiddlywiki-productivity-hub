@@ -1,0 +1,13 @@
+title: $:/prod/SideBarSegment
+tags: $:/tags/SideBarSegment
+list-after: $:/core/ui/SideBarSegments/search
+
+\whitespace trim
+<div class="prod-side">
+<$list filter="Home Dashboard [[Task Board]] Agenda Calendar Projects Notes Review Search [[Import and Export]] [[Setup Guide]]" variable="pg"><$link to=<<pg>> class="prod-sidelink"><$text text=<<pg>>/></$link></$list>
+<div class="prod-side-actions">
+<$button class="prod-btn primary" actions="""<$action-navigate $to="New Project"/>""">＋ Project</$button>
+<$button class="prod-btn" actions="""<$action-sendmessage $message="tm-new-tiddler" title="New task" tags="Task" status="todo" priority="2"/>""">＋ Task</$button>
+<$button class="prod-btn" actions="""<$action-sendmessage $message="tm-new-tiddler" title="New note" tags="Note"/>""">＋ Note</$button>
+</div>
+</div>

@@ -1,0 +1,14 @@
+title: $:/prod/ViewTemplate/task
+tags: $:/tags/ViewTemplate
+list-before: $:/core/ui/ViewTemplate/body
+
+\whitespace trim
+<$list filter="[all[current]tag[Task]]" variable="_p">
+<div class="prod-card prod-taskhead">
+<div class="prod-taskhead-top"><<task-check>> <<due-badge>> <<prio-badge>> <$button class="prod-btn" message="tm-prod-export-tiddler" param=<<currentTiddler>>>⬇ .md</$button></div>
+<<task-fields>>
+</div>
+</$list>
+<$list filter="[all[current]tag[Note]]" variable="_p">
+<div class="prod-card prod-taskhead"><<note-fields>> <$button class="prod-btn" message="tm-prod-export-tiddler" param=<<currentTiddler>>>⬇ Export .md</$button></div>
+</$list>

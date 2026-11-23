@@ -1,0 +1,15 @@
+title: $:/prod/ViewTemplate/project-header
+tags: $:/tags/ViewTemplate
+list-before: $:/core/ui/ViewTemplate/body
+
+\whitespace trim
+<$list filter="[all[current]tag[Project]]" variable="_p">
+<div class="prod-card prod-projhead" style=`border-top-color:${ [{!!color}else[#7c8aa5]] }$`>
+<<project-fields>>
+<$transclude $variable="project-stats" p=<<currentTiddler>>/>
+<div class="prod-actions">
+<$button class="prod-btn" actions="""<$action-sendmessage $message="tm-new-tiddler" title="New note" tags={{{ [[Note]] [<currentTiddler>] +[addprefix<ob>addsuffix<cb>join[ ]] }}} project=<<currentTiddler>>/>""">＋ Note</$button>
+<$button class="prod-btn" message="tm-prod-export-download" param=<<currentTiddler>>>⬇ Export .md</$button>
+</div>
+</div>
+</$list>

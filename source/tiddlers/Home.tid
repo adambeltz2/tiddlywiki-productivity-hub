@@ -1,0 +1,36 @@
+title: Home
+class: prod-home
+
+\whitespace trim
+<<prod-nav>>
+<div class="prod-home-hero">
+<div>
+<h1 class="prod-home-h"><$list filter="[<now hh>compare:number:lt[12]]" variable="_a" emptyMessage="""<$list filter="[<now hh>compare:number:lt[18]]" variable="_b" emptyMessage="Good evening">Good afternoon</$list>""">Good morning</$list></h1>
+<div class="prod-muted"><<now "DDD, DD MMM YYYY">>&nbsp;·&nbsp;<$text text={{{ [function[prod.open]daysin[],[0]count[]addsuffix[ tasks need attention today]] }}}/></div>
+</div>
+<div class="prod-home-actions">
+<$button class="prod-btn primary" actions="""<$action-navigate $to="New Project"/>""">＋ New project</$button>
+<$button class="prod-btn" actions="""<$action-sendmessage $message="tm-new-tiddler" title="New note" tags="Note"/>""">＋ Note</$button>
+</div>
+</div>
+
+<div class="prod-card prod-home-capture"><$transclude $variable="quick-task" proj="" key="home"/></div>
+
+<h2 class="prod-h2">Today</h2>
+<div class="prod-card">
+<<task-list filter:"[function[prod.open]daysin[],[0]] [function[prod.open]field:focus[yes]] +[nsort[priority]sort[due]limit[7]]" empty:"You're clear for today ✨ — add a task above.">>
+</div>
+
+<h2 class="prod-h2">Projects</h2>
+<div class="prod-cards">
+<$list filter="[function[prod.active-projects]sort[title]]">
+<div class="prod-card prod-projcard" style=`border-top-color:${ [{!!color}else[#7c8aa5]] }$`>
+<h3><$link to=<<currentTiddler>>><$text text=<<currentTiddler>>/></$link></h3>
+<$transclude $variable="project-stats" p=<<currentTiddler>>/>
+<div class="prod-task-meta"><<due-badge>> <span class="prod-muted"><$text text={{{ [function[prod.notes]tag<currentTiddler>count[]addsuffix[ notes · ]] [function[prod.open]tag<currentTiddler>count[]addsuffix[ open]] +[join[]] }}}/></span></div>
+</div>
+</$list>
+<$button class="prod-newtile" actions="""<$action-navigate $to="New Project"/>""">＋<br>New project</$button>
+</div>
+<$list filter="[function[prod.projects]count[]match[0]]" variable="_a"><p class="prod-muted"><<load-sample-btn>> to explore with example data.</p></$list>
+<p class="prod-muted prod-home-more"><$list filter="Dashboard [[Task Board]] Agenda Calendar Notes Review Search [[Import and Export]] [[Setup Guide]]" variable="pg"><$link to=<<pg>>><$text text=<<pg>>/></$link> </$list></p>

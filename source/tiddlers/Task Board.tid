@@ -1,0 +1,20 @@
+title: Task Board
+
+\whitespace trim
+<<prod-nav>>
+<div class="prod-toolbar">
+<label>Project <$select tiddler="$:/state/prod/board" field="project" default="ALL"><option value="ALL">All projects</option><$list filter="[function[prod.projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list></$select></label>
+<span class="prod-muted">Drag cards between columns, or tick the circle to complete.</span>
+</div>
+<$let pf={{{ [[$:/state/prod/board]get[project]else[ALL]] }}}>
+<div class="prod-board">
+<$list filter="todo doing waiting done" variable="col">
+<$droppable actions=<<board-drop>> class="prod-column">
+<h3><$text text={{{ [<col>match[todo]then[To do]] ~[<col>match[doing]then[In progress]] ~[<col>match[waiting]then[Waiting]] ~[[Done]] }}}/> <span class="prod-count"><$text text={{{ [function[prod.board-col],<col>,<pf>count[]] }}}/></span></h3>
+<$list filter="[function[prod.board-col],<col>,<pf>nsort[priority]sort[due]limit[100]]">
+<$draggable tiddler=<<currentTiddler>> class="prod-draggable"><<task-row>></$draggable>
+</$list>
+</$droppable>
+</$list>
+</div>
+</$let>

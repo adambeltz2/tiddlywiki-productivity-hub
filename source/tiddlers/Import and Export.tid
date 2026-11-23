@@ -1,0 +1,35 @@
+title: Import and Export
+
+<<prod-nav>>
+<p class="prod-muted">Markdown in, Markdown out — built in, no plugins. Files carry YAML front matter (<code>title, type, project, status, priority, due, tags…</code>) so tasks and projects round-trip losslessly, and plain <code>.md</code> notes from any editor (Obsidian, Notion, VS Code…) import cleanly. New to this, or moving between a local file and a server? See the [[Setup Guide]].</p>
+<div class="prod-grid">
+<section class="prod-card">
+<h3>⬇ Export to Markdown</h3>
+<div class="prod-fields">
+<label>What <$select tiddler="$:/state/prod/export-scope" field="text" default="all"><option value="all">Everything</option><$list filter="[function[prod.projects]sort[title]]" variable="pr"><option value=<<pr>>>Project: <$text text=<<pr>>/></option></$list></$select></label>
+</div>
+<p><$checkbox tiddler="$:/state/prod/export" field="tasks" checked="yes" unchecked="no" default="yes"> Tasks</$checkbox> &nbsp; <$checkbox tiddler="$:/state/prod/export" field="notes" checked="yes" unchecked="no" default="yes"> Notes</$checkbox> &nbsp; <$checkbox tiddler="$:/state/prod/export" field="done" checked="yes" unchecked="no" default="yes"> Completed tasks</$checkbox></p>
+<$let scope={{{ [[$:/state/prod/export-scope]get[text]else[all]] }}}>
+<$button class="prod-btn primary" message="tm-prod-export-download" param=<<scope>>>Download .md</$button>
+<$button class="prod-btn" message="tm-prod-export-preview" param=<<scope>>>Preview / copy</$button>
+</$let>
+<$list filter="[[$:/temp/prod/export]has[info]]" variable="_i">
+<p class="prod-muted"><$text text={{$:/temp/prod/export!!info}}/></p>
+<textarea class="prod-input prod-full prod-mono" rows="12" readonly><$text text={{$:/temp/prod/export}}/></textarea>
+</$list>
+<p class="prod-muted">Open any task, note or project and use its <b>⬇ .md</b> button to export just that one.</p>
+</section>
+<section class="prod-card">
+<h3>⬆ Import from Markdown</h3>
+<div class="prod-fields">
+<label>Put in project <$select tiddler="$:/state/prod/import" field="project" default=""><option value="">(use the file's own project / inbox)</option><$list filter="[function[prod.projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list></$select></label>
+<label>If a title already exists <$select tiddler="$:/state/prod/import" field="conflict" default="rename"><option value="rename">Keep both (rename)</option><option value="skip">Skip it</option><option value="overwrite">Overwrite</option></$select></label>
+</div>
+<p><$checkbox tiddler="$:/state/prod/import" field="checklist" checked="yes" unchecked="no" default="no"> Turn <code>- [ ] checklist items</code> into tasks (supports <code>📅 2026-12-01</code> or <code>due: 2026-12-01</code>)</$checkbox></p>
+<$prod-import/>
+<p>…or paste Markdown:</p>
+<$edit-text tiddler="$:/state/prod/import/paste" tag="textarea" rows="8" class="prod-input prod-full prod-mono" placeholder="---&#10;title: My note&#10;project: Website redesign&#10;---&#10;&#10;# My note&#10;Body in **Markdown**…" default=""/>
+<p><$button class="prod-btn primary" message="tm-prod-import-paste">Import pasted text</$button></p>
+<$list filter="[[$:/temp/prod/import-result]is[tiddler]]" variable="_r"><div class="prod-result"><$transclude tiddler="$:/temp/prod/import-result" mode="block"/></div></$list>
+</section>
+</div>

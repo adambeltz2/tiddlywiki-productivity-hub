@@ -1,0 +1,16 @@
+title: Notes
+
+\whitespace trim
+<<prod-nav>>
+<div class="prod-hero"><span></span>
+<$button class="prod-btn primary" actions="""<$action-sendmessage $message="tm-new-tiddler" title="New note" tags="Note"/>""">＋ New note</$button></div>
+<div class="prod-toolbar">
+<$edit-text tiddler="$:/state/prod/notes" field="q" tag="input" placeholder="Search notes…" class="prod-input prod-grow" default=""/>
+<$select tiddler="$:/state/prod/notes" field="project" default="ALL"><option value="ALL">All projects</option><option value="INBOX">Inbox (no project)</option><$list filter="[function[prod.projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list></$select>
+</div>
+<$let q={{{ [[$:/state/prod/notes]get[q]trim[]] }}} pf={{{ [[$:/state/prod/notes]get[project]else[ALL]] }}}>
+<div class="prod-cards">
+<$list filter="[<q>is[blank]]" variable="_s"><$list filter="[function[prod.notes-proj],<pf>] :sort:string[get[pinned]match[yes]then[0]else[1]]" emptyMessage="No notes here yet."><<note-card>></$list></$list>
+<$list filter="[<q>!is[blank]]" variable="_s"><$list filter="[function[prod.notes-proj],<pf>search:title,text<q>] :sort:string[get[pinned]match[yes]then[0]else[1]]" emptyMessage="No matching notes."><<note-card>></$list></$list>
+</div>
+</$let>

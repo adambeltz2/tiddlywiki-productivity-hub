@@ -1,0 +1,7 @@
+title: $:/prod/howitworks
+
+* ''Projects'' hold tasks and notes. Tasks/notes are tagged with their project automatically: pick it in the **Project** dropdown, add it in quick capture, or just write <code>[[Project Name]]</code> in a note.
+* ''Tasks'' have status, due date, priority, repeat and a ★ focus flag. Tick the circle to complete; repeating tasks roll to their next date.
+* ''Views'': Dashboard (today), Task Board (drag between columns), Agenda (next 14 days), Calendar (click a day to add), Review (weekly reset).
+* ''Markdown'': **Import and Export** reads and writes .md files with front matter — nothing to install.
+* ''Saving'': use the ✓ save-changes button (top right of the sidebar) to download your updated file; keep that file as your wiki.

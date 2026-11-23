@@ -1,0 +1,36 @@
+title: New Project
+
+\whitespace trim
+\procedure np-create()
+<$let name={{{ [[$:/state/prod/np]get[name]trim[]] }}} color={{{ [[$:/state/prod/np]get[color]else[#4c6ef5]] }}}>
+<$list filter="[<name>!is[blank]!is[tiddler]]" variable="_ok">
+<$action-setfield $tiddler=<<name>> tags="Project" status="active" color=<<color>> due={{{ [[$:/state/prod/np]get[due]] }}} text={{{ [[$:/state/prod/np]get[desc]] }}}/>
+<$list filter="[[$:/state/prod/np]get[starter]else[yes]match[yes]]" variable="_s">
+<$action-setfield $tiddler={{{ [<name>addsuffix[ – Overview]] }}} tags={{{ [[Note]] [<name>] +[addprefix<ob>addsuffix<cb>join[ ]] }}} project=<<name>> text=`!! Goal
+What does done look like?
+
+!! Notes
+Anything linking to [[$(name)$]] is tagged to this project automatically.`/>
+<$action-setfield $tiddler={{{ [<name>addprefix[Define scope for ]] }}} tags={{{ [[Task]] [<name>] +[addprefix<ob>addsuffix<cb>join[ ]] }}} project=<<name>> status="todo" priority="1" due={{{ [today[]isoadd[+3]] }}} text="Write down the outcome, the milestones and what is out of scope."/>
+</$list>
+<$action-deletetiddler $filter="[[$:/state/prod/np]]"/>
+<$action-sendmessage $message="tm-close-tiddler" $param="New Project"/>
+<$action-navigate $to=<<name>>/>
+</$list>
+</$let>
+\end
+<<prod-nav>>
+<div class="prod-card prod-form">
+<label>Name<br><$edit-text tiddler="$:/state/prod/np" field="name" tag="input" class="prod-input prod-full" placeholder="e.g. Website redesign" default=""/></label>
+<$let nm={{{ [[$:/state/prod/np]get[name]trim[]] }}}>
+<$list filter="[<nm>is[tiddler]]" variable="_x"><div class="prod-warn">A tiddler called “<$text text=<<nm>>/>” already exists. Pick another name.</div></$list>
+</$let>
+<div class="prod-fields">
+<label>Deadline <$edit-text tiddler="$:/state/prod/np" field="due" tag="input" type="date" class="prod-input" default=""/></label>
+<label>Colour <$edit-text tiddler="$:/state/prod/np" field="color" tag="input" type="color" class="prod-input prod-color" default="#4c6ef5"/></label>
+</div>
+<label>Description (optional)<br><$edit-text tiddler="$:/state/prod/np" field="desc" tag="textarea" rows="3" class="prod-input prod-full" default=""/></label>
+<p><$checkbox tiddler="$:/state/prod/np" field="starter" checked="yes" unchecked="no" default="yes">&nbsp;Add a starter note and first task</$checkbox></p>
+<$button class="prod-btn primary" actions=<<np-create>>>Create project</$button>
+</div>
+<p class="prod-muted">Tasks and notes you add to a project are tagged with its name and coloured automatically. Writing&nbsp;<code>[[Project Name]]</code>&nbsp;inside any note tags that note to the project too.</p>

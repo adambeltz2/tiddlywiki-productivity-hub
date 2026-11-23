@@ -1,0 +1,94 @@
+title: Dashboard
+caption: Dashboard
+
+\whitespace trim
+<<prod-nav>>
+<div class="prod-hero">
+<div>
+<h1><$list filter="[<now hh>compare:number:lt[12]]" variable="_a" emptyMessage="""<$list filter="[<now hh>compare:number:lt[18]]" variable="_b" emptyMessage="Good evening">Good afternoon</$list>""">Good morning</$list></h1>
+<div class="prod-muted"><<now "DDD, DD MMM YYYY">></div>
+</div>
+<$button class="prod-btn primary" actions="""<$action-navigate $to="New Project"/>""">＋ New project</$button>
+</div>
+
+<div class="prod-stats">
+<div class={{{ [function[prod.open]daysin[],[-1]count[]compare:number:gt[0]then[prod-stat is-bad]else[prod-stat]] }}}><span class="n"><$text text={{{ [function[prod.open]daysin[],[-1]count[]] }}}/></span><span>Overdue</span></div>
+<div class="prod-stat"><span class="n"><$text text={{{ [function[prod.open]daysin[0],[0]count[]] }}}/></span><span>Due today</span></div>
+<div class="prod-stat"><span class="n"><$text text={{{ [function[prod.open]daysin[1],[7]count[]] }}}/></span><span>Next 7 days</span></div>
+<div class="prod-stat"><span class="n"><$text text={{{ [function[prod.open]count[]] }}}/></span><span>Open tasks</span></div>
+<div class="prod-stat"><span class="n"><$text text={{{ [function[prod.active-projects]count[]] }}}/></span><span>Active projects</span></div>
+<div class="prod-stat is-good"><span class="n"><$text text={{{ [function[prod.tasks]status[done]daysin:completed[-6],[0]count[]] }}}/></span><span>Done this week</span></div>
+</div>
+
+<$list filter="[function[prod.projects]count[]match[0]]" variable="_a"><div class="prod-card prod-welcome">
+<h3>👋 Welcome</h3>
+Start by creating a project — everything you add to it (tasks, notes, anything that links to <code>[[Project Name]]</code>) is tagged to it automatically.
+<p><$button class="prod-btn primary" actions="""<$action-navigate $to="New Project"/>""">＋ New project</$button> <<load-sample-btn>></p>
+</div></$list>
+
+<div class="prod-grid">
+<div class="prod-col-main">
+
+<section class="prod-card">
+<h3>Quick capture</h3>
+<$list filter="[[$:/state/prod/qc-tab]get[text]else[task]match[task]]" variable="_t" emptyMessage="""<<quick-note>>""">
+<<quick-task>>
+</$list>
+<div class="prod-tabs"><$button class={{{ [[prod-tab]] [[$:/state/prod/qc-tab]get[text]else[task]match[task]then[is-on]] +[join[ ]] }}} set="$:/state/prod/qc-tab" setTo="task">Task</$button><$button class={{{ [[prod-tab]] [[$:/state/prod/qc-tab]get[text]match[note]then[is-on]] +[join[ ]] }}} set="$:/state/prod/qc-tab" setTo="note">Note</$button></div>
+</section>
+
+<$list filter="[function[prod.open]field:focus[yes]limit[1]]" variable="_a"><section class="prod-card is-focus">
+<h3>★ Today's focus</h3>
+<<task-list filter:"[function[prod.open]field:focus[yes]nsort[priority]sort[due]]">>
+</section></$list>
+
+<$list filter="[function[prod.open]daysin[],[-1]limit[1]]" variable="_a"><section class="prod-card">
+<h3 class="is-bad">Overdue</h3>
+<<task-list filter:"[function[prod.open]daysin[],[-1]nsort[priority]sort[due]]">>
+</section></$list>
+
+<section class="prod-card">
+<h3>Today</h3>
+<<task-list filter:"[function[prod.open]daysin[0],[0]nsort[priority]]" empty:"Nothing due today. Add something above or enjoy the calm.">>
+</section>
+
+<section class="prod-card">
+<h3>Coming up <span class="prod-muted">next 7 days</span></h3>
+<<task-list filter:"[function[prod.open]daysin[1],[7]sort[due]nsort[priority]]" empty:"Nothing scheduled this week.">>
+</section>
+
+</div>
+<div class="prod-col-side">
+
+<section class="prod-card">
+<h3>Projects <$link to="Projects" class="prod-more">all →</$link></h3>
+<$list filter="[function[prod.active-projects]sort[title]]" emptyMessage="""<div class="prod-empty">No active projects yet.</div>""">
+<div class="prod-proj">
+<div class="prod-proj-name" style=`border-left-color:${ [{!!color}else[#7c8aa5]] }$`><$link to=<<currentTiddler>>><$text text=<<currentTiddler>>/></$link></div>
+<$transclude $variable="project-stats" p=<<currentTiddler>>/>
+</div>
+</$list>
+</section>
+
+<$list filter="[function[prod.tasks]!has[project]!status[done]] [function[prod.notes]!has[project]] +[limit[1]]" variable="_a"><section class="prod-card">
+<h3>Inbox <span class="prod-muted">unfiled</span></h3>
+<$list filter="[function[prod.tasks]!has[project]!status[done]] [function[prod.notes]!has[project]] +[sort[modified]reverse[]limit[8]]" variable="it">
+<div class="prod-inbox"><$link to=<<it>>><$text text=<<it>>/></$link><$tiddler tiddler=<<it>>><<project-select>></$tiddler></div>
+</$list>
+</section></$list>
+
+<section class="prod-card">
+<h3>Recent notes <$link to="Notes" class="prod-more">all →</$link></h3>
+<$list filter="[function[prod.notes]sort[modified]reverse[]limit[5]]" emptyMessage="""<div class="prod-empty">No notes yet.</div>""">
+<div class="prod-mini"><$link to=<<currentTiddler>>><$text text=<<currentTiddler>>/></$link> <$transclude $variable="project-pill" name={{!!project}}/></div>
+</$list>
+</section>
+
+</div>
+</div>
+
+<details class="prod-details"><summary>How this works</summary>
+
+{{$:/prod/howitworks}}
+
+</details>

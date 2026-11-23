@@ -1,0 +1,37 @@
+title: Calendar
+
+\whitespace trim
+\procedure cal-pick()
+<$action-setfield $tiddler="$:/state/prod/cal" sel=<<d>>/>
+<$action-setfield $tiddler="$:/state/prod/qt/cal" due=<<d>>/>
+\end
+<<prod-nav>>
+<$let off={{{ [[$:/state/prod/cal]get[text]else[0]] }}} sel={{{ [[$:/state/prod/cal]get[sel]else<now "YYYY-0MM-0DD">] }}} todayiso={{{ [today[]] }}}>
+<$let first={{{ [calfirst<off>] }}}>
+<div class="prod-cal-head">
+<$button class="prod-btn" actions="""<$action-setfield $tiddler="$:/state/prod/cal" text={{{ [<off>subtract[1]] }}}/>""">‹</$button>
+<h2><$text text={{{ [<first>isotw[]format:date[MMM YYYY]] }}}/></h2>
+<$button class="prod-btn" actions="""<$action-setfield $tiddler="$:/state/prod/cal" text={{{ [<off>add[1]] }}}/>""">›</$button>
+<$button class="prod-btn" actions="""<$action-setfield $tiddler="$:/state/prod/cal" text="0" sel=<<todayiso>>/>""">Today</$button>
+</div>
+<$let m1={{{ [<first>split[-]nth[2]] }}}>
+<div class="prod-cal">
+<$list filter="[calgrid<off>first[7]]" variable="d"><div class="prod-cal-dow"><$text text={{{ [<d>isotw[]format:date[ddd]] }}}/></div></$list>
+<$list filter="[calgrid<off>]" variable="d">
+<div class={{{ [[prod-cal-cell]] [<d>split[-]nth[2]match<m1>else[out]match[out]then[is-out]] [<d>match<todayiso>then[is-today]] [<d>match<sel>then[is-sel]] +[join[ ]] }}}>
+<$button class="prod-cal-day" actions=<<cal-pick>>><$text text={{{ [<d>isotw[]format:date[DD]] }}}/></$button>
+<$list filter="[function[prod.tasks]field:due<d>nsort[priority]limit[3]]" variable="tk">
+<span class={{{ [[prod-chip]] [<tk>get[status]match[done]then[is-done]] [<tk>get[priority]match[1]then[is-high]] +[join[ ]] }}} style=`--c:${ [<tk>get[project]get[color]else[#7c8aa5]] }$`><$link to=<<tk>>><$text text=<<tk>>/></$link></span>
+</$list>
+<$list filter="[function[prod.tasks]field:due<d>count[]compare:number:gt[3]]" variable="more"><span class="prod-muted prod-more-chip">+<$text text={{{ [function[prod.tasks]field:due<d>count[]subtract[3]] }}}/> more</span></$list>
+</div>
+</$list>
+</div>
+</$let>
+<section class="prod-card">
+<h3><$text text={{{ [<sel>isotw[]format:date[DDD, DD MMM]] }}}/></h3>
+<$transclude $variable="quick-task" proj="" key="cal" due=<<sel>>/>
+<<task-list filter:"[function[prod.tasks]field:due<sel>nsort[priority]]" empty:"Nothing on this day.">>
+</section>
+</$let>
+</$let>

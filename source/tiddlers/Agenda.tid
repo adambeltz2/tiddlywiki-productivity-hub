@@ -1,0 +1,16 @@
+title: Agenda
+
+\whitespace trim
+<<prod-nav>>
+<$list filter="[function[prod.open]daysin[],[-1]limit[1]]" variable="_a"><section class="prod-card"><h3 class="is-bad">Overdue</h3><<task-list filter:"[function[prod.open]daysin[],[-1]sort[due]nsort[priority]]">></section></$list>
+<$list filter="[range[0],[13]]" variable="n">
+<$let d={{{ [today[]isoadd<n>] }}}>
+<$list filter="[function[prod.open]field:due<d>limit[1]]" variable="_a" emptyMessage="""<$list filter="[<n>match[0]]" variable="_z"><section class="prod-card"><h3>Today <span class="prod-muted"><$text text={{{ [<d>isotw[]format:date[ddd, DD mmm]] }}}/></span></h3><div class="prod-empty">Nothing due today.</div></section></$list>""">
+<section class="prod-card"><h3><$text text={{{ [<n>match[0]then[Today]] ~[<n>match[1]then[Tomorrow]] ~[<d>isotw[]format:date[DDD]] }}}/> <span class="prod-muted"><$text text={{{ [<d>isotw[]format:date[DD mmm]] }}}/></span></h3>
+<<task-list filter:"[function[prod.open]field:due<d>nsort[priority]]">>
+</section>
+</$list>
+</$let>
+</$list>
+<section class="prod-card"><h3>Later <span class="prod-muted">after 14 days</span></h3><<task-list filter:"[function[prod.open]daysin[14],[]sort[due]]" empty:"Nothing further out.">></section>
+<section class="prod-card"><h3>No due date</h3><<task-list filter:"[function[prod.open]!has[due]nsort[priority]limit[30]]" empty:"Every task has a date.">></section>

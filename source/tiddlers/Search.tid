@@ -1,0 +1,32 @@
+title: Search
+
+\whitespace trim
+<<prod-nav>>
+<$let t={{{ [[$:/state/prod/search]get[type]else[ALL]] }}} p={{{ [[$:/state/prod/search]get[project]else[ALL]] }}} s={{{ [[$:/state/prod/search]get[status]else[ALL]] }}} r={{{ [[$:/state/prod/search]get[priority]else[ALL]] }}} d={{{ [[$:/state/prod/search]get[due]else[ALL]] }}} q={{{ [[$:/state/prod/search]get[q]trim[]] }}} mode={{{ [[$:/state/prod/search]get[sort]else[best]] }}}>
+<div class="prod-card prod-searchbox">
+<$edit-text tiddler="$:/state/prod/search" field="q" tag="input" placeholder="Search titles, text, tags and projects…  (all words must match)" class="prod-input prod-full prod-bigsearch" default="" focus="yes"/>
+<div class="prod-fields prod-filters">
+<label>Type <$select tiddler="$:/state/prod/search" field="type" default="ALL"><option value="ALL">All</option><option value="Project">Projects</option><option value="Task">Tasks</option><option value="Note">Notes</option></$select></label>
+<label>Project <$select tiddler="$:/state/prod/search" field="project" default="ALL"><option value="ALL">Any</option><option value="INBOX">Inbox (none)</option><$list filter="[function[prod.projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list></$select></label>
+<label>Status <$select tiddler="$:/state/prod/search" field="status" default="ALL"><option value="ALL">Any</option><option value="open">Open (not done)</option><option value="todo">To do</option><option value="doing">In progress</option><option value="waiting">Waiting</option><option value="done">Done</option><option value="active">Active project</option><option value="on-hold">On hold</option></$select></label>
+<label>Priority <$select tiddler="$:/state/prod/search" field="priority" default="ALL"><option value="ALL">Any</option><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></$select></label>
+<label>Due <$select tiddler="$:/state/prod/search" field="due" default="ALL"><option value="ALL">Any</option><option value="overdue">Overdue</option><option value="today">Today</option><option value="week">Next 7 days</option><option value="later">Later</option><option value="none">No date</option></$select></label>
+<label>Sort <$select tiddler="$:/state/prod/search" field="sort" default="best"><option value="best">Best match</option><option value="due">Due date</option><option value="modified">Recently modified</option><option value="title">Title A–Z</option></$select></label>
+<$button class="prod-btn" actions="""<$action-deletetiddler $tiddler="$:/state/prod/search"/>""">Clear</$button>
+</div>
+<div class="prod-saved">
+<span class="prod-muted">Saved:</span>
+<$list filter="[all[tiddlers]tag[$:/tags/prod/saved]sort[caption]]" emptyMessage="""<span class="prod-muted">none yet</span>""">
+<span class="prod-chipbtn"><$button class="prod-chipmain" actions=<<apply-saved-actions>>><$text text={{!!caption}}/></$button><$button class="prod-chipx" tooltip="Delete saved search" actions="""<$action-deletetiddler $tiddler=<<currentTiddler>>/>""">×</$button></span>
+</$list>
+<$edit-text tiddler="$:/state/prod/search" field="savename" tag="input" placeholder="Name this search…" class="prod-input prod-savename" default=""/>
+<$button class="prod-btn" actions=<<save-search-actions>>>Save</$button>
+</div>
+</div>
+<$let sortf={{{ [<mode>match[due]then<sf-due>] ~[<mode>match[modified]then<sf-modified>] ~[<mode>match[title]then<sf-title>] ~[<sf-best>] }}}>
+<p class="prod-muted"><$text text={{{ [function[prod.search],<t>,<p>,<s>,<r>,<d>,<q>count[]addsuffix[ result(s)]] }}}/></p>
+<$list filter=`[function[prod.search],<t>,<p>,<s>,<r>,<d>,<q>]$(sortf)$ +[limit[200]]` emptyMessage="""<div class="prod-empty">Nothing matches. Try fewer filters.</div>""">
+<<search-row>>
+</$list>
+</$let>
+</$let>

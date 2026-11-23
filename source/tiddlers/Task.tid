@@ -1,0 +1,5 @@
+title: Task
+color: #2f9e44
+caption: Task
+
+Tasks have a **status**, **due date**, **priority** and optional **repeat**. They are tagged with their project automatically.

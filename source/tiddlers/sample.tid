@@ -1,0 +1,19 @@
+title: $:/prod/sample
+tags: $:/tags/Macro
+
+\procedure load-sample-actions()
+<$action-setfield $tiddler="Sample: Launch the website" tags="Project" status="active" color="#4c6ef5" due={{{ [today[]isoadd[+21]] }}} text="Example project — delete it any time (open it, then use the tiddler menu ▸ delete, and its tasks/notes if you like)."/>
+<$action-setfield $tiddler="Draft homepage copy" tags="Task [[Sample: Launch the website]]" project="Sample: Launch the website" status="doing" priority="1" focus="yes" due={{{ [today[]] }}} text="Keep it under 120 words."/>
+<$action-setfield $tiddler="Pick a hosting provider" tags="Task [[Sample: Launch the website]]" project="Sample: Launch the website" status="todo" priority="2" due={{{ [today[]isoadd[+2]] }}}/>
+<$action-setfield $tiddler="Send newsletter" tags="Task [[Sample: Launch the website]]" project="Sample: Launch the website" status="todo" priority="3" repeat="weekly" due={{{ [today[]isoadd[+5]] }}}/>
+<$action-setfield $tiddler="Fix broken contact form" tags="Task [[Sample: Launch the website]]" project="Sample: Launch the website" status="waiting" priority="1" due={{{ [today[]isoadd[-2]] }}}/>
+<$action-setfield $tiddler="Buy domain" tags="Task [[Sample: Launch the website]]" project="Sample: Launch the website" status="done" priority="2" completed={{{ [today[]isoadd[-1]] }}}/>
+<$action-setfield $tiddler="Call the dentist" tags="Task" status="todo" priority="2" due={{{ [today[]isoadd[+1]] }}}/>
+<$action-setfield $tiddler="Brand ideas" tags="Note [[Sample: Launch the website]]" project="Sample: Launch the website" pinned="yes" text="* Calm, confident, plain English
+* Keep the logo simple"/>
+<$action-setfield $tiddler="Meeting notes" tags="Note" text="Kick-off for [[Sample: Launch the website]]: this note was tagged to the project automatically because it links to it."/>
+\end
+
+\procedure load-sample-btn()
+<$button class="prod-btn" actions=<<load-sample-actions>>>Load a sample project</$button>
+\end

@@ -1,0 +1,8 @@
+title: $:/prod/EditTemplate/fields
+tags: $:/tags/EditTemplate
+list-before: $:/core/ui/EditTemplate/tags
+
+\whitespace trim
+<$list filter="[all[current]tag[Task]]" variable="_p"><div class="prod-card"><<task-fields>></div></$list>
+<$list filter="[all[current]tag[Note]]" variable="_p"><div class="prod-card"><<note-fields>></div></$list>
+<$list filter="[all[current]tag[Project]]" variable="_p"><div class="prod-card"><<project-fields>></div></$list>

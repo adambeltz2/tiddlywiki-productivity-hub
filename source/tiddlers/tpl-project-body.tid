@@ -1,0 +1,31 @@
+title: $:/prod/ViewTemplate/project-content
+tags: $:/tags/ViewTemplate
+list-after: $:/core/ui/ViewTemplate/body
+
+\whitespace trim
+<$list filter="[all[current]tag[Project]]" variable="_p">
+<$let p=<<currentTiddler>>>
+<div class="prod-grid">
+<div class="prod-col-main">
+<section class="prod-card"><h3>Tasks</h3>
+<$transclude $variable="quick-task" proj=<<p>> key=<<p>>/>
+<<task-list filter:"[function[prod.open]tag<p>sort[due]nsort[priority]]" empty:"No open tasks. Add one above.">>
+<$list filter="[function[prod.tasks]tag<p>status[done]limit[1]]" variable="_d"><details class="prod-details"><summary>Completed (<$text text={{{ [function[prod.tasks]tag<p>status[done]count[]] }}}/>)</summary>
+<<task-list filter:"[function[prod.tasks]tag<p>status[done]sort[completed]reverse[]]">>
+</details></$list>
+</section>
+</div>
+<div class="prod-col-side">
+<section class="prod-card"><h3>Notes</h3>
+<$let lst={{{ [[$:/state/prod/link/]addsuffix<p>] }}}>
+<div class="prod-quick"><$select tiddler=<<lst>> field="text" default="" class="prod-input prod-grow" actions=<<link-note-actions>>><option value="">🔗 Link an existing note…</option><$list filter="[function[prod.notes]!tag<p>sort[title]]" variable="nn"><option value=<<nn>>><$text text=<<nn>>/></option></$list></$select></div>
+</$let>
+<$transclude $variable="quick-note" proj=<<p>> key=<<p>>/>
+<$list filter="[function[prod.notes]tag<p>] :sort:string[get[pinned]match[yes]then[0]else[1]]" emptyMessage="""<div class="prod-empty">No notes yet.</div>"""><$transclude $variable="note-card" unlink=<<p>>/></$list>
+</section>
+<$list filter="[<p>backlinks[]!tag<p>!is[system]!tag[Task]!tag[Note]limit[1]]" variable="_b"><section class="prod-card"><h3>Mentioned in</h3>
+<$list filter="[<p>backlinks[]!tag<p>!is[system]!tag[Task]!tag[Note]sort[title]]"><div class="prod-mini"><$link/></div></$list></section></$list>
+</div>
+</div>
+</$let>
+</$list>

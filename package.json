@@ -1,0 +1,11 @@
+{
+  "name": "tiddlywiki-productivity-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TiddlyWiki productivity template: projects, tasks, notes, search, Markdown import/export",
+  "scripts": {
+    "build": "tiddlywiki source --output dist --build index",
+    "test": "node tests/test-md.js && node tests/test-relink.js"
+  },
+  "devDependencies": { "tiddlywiki": "5.4.1" }
+}

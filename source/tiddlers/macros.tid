@@ -1,0 +1,254 @@
+title: $:/prod/macros
+tags: $:/tags/Macro
+
+\procedure ob() [[
+\procedure cb() ]]
+\function prod.tasks() [all[tiddlers]tag[Task]!is[draft]]
+\function prod.open() [all[tiddlers]tag[Task]!status[done]!is[draft]]
+\function prod.notes() [all[tiddlers]tag[Note]!is[draft]]
+\function prod.projects() [all[tiddlers]tag[Project]!is[draft]]
+\function prod.active-projects() [all[tiddlers]tag[Project]!status[done]!status[archived]!status[on-hold]!is[draft]]
+\function prod.board-col(col,pf) [<pf>match[ALL]] :then[function[prod.tasks]field:status<col>] :else[function[prod.tasks]field:status<col>field:project<pf>]
+\function prod.notematch(pf) [<currentTiddler>get[project]else[INBOX]] [<pf>match[ALL]] +[match<pf>]
+\function prod.notes-proj(pf) [function[prod.notes]] :filter[function[prod.notematch],<pf>]
+\function prod.items() [function[prod.projects]] [function[prod.tasks]] [function[prod.notes]]
+\function prod.kind() [<currentTiddler>tags[]match[Project]then[Project]] ~[<currentTiddler>tags[]match[Task]then[Task]] ~[[Note]]
+\function prod.dcat() [{!!due}is[blank]then[none]] ~[{!!due}daysto[]compare:number:lt[0]then[overdue]] ~[{!!due}daysto[]match[0]then[today]] ~[{!!due}daysto[]compare:number:lt[8]then[week]] ~[[later]]
+\function prod.s-type(t) [<t>match[ALL]] [function[prod.kind]] +[match<t>]
+\function prod.s-proj(p) [<p>match[ALL]] [function[prod.kind]match[Project]then<currentTiddler>] ~[<currentTiddler>get[project]else[INBOX]] +[match<p>]
+\function prod.s-status(s) [<s>match[ALL]] [<currentTiddler>get[status]else[none]] [{!!status}match[todo]then[open]] [{!!status}match[doing]then[open]] [{!!status}match[waiting]then[open]] +[match<s>]
+\function prod.s-prio(r) [<r>match[ALL]] [<currentTiddler>get[priority]else[none]] +[match<r>]
+\function prod.s-due(d) [<d>match[ALL]] [function[prod.dcat]] +[match<d>]
+\function prod.s-text(q) [<q>is[blank]then[ok]] [<currentTiddler>search:title,text,tags,project:words<q>then[ok]] +[limit[1]]
+\function prod.s-rank(q) [<currentTiddler>search:title:words<q>then[0]] ~[[1]]
+\function prod.search(t,p,s,r,d,q) [function[prod.items]] :filter[function[prod.s-type],<t>] :filter[function[prod.s-proj],<p>] :filter[function[prod.s-status],<s>] :filter[function[prod.s-prio],<r>] :filter[function[prod.s-due],<d>] :filter[function[prod.s-text],<q>]
+\function prod.due-label(n) [<n>match[0]then[Today]] ~[<n>match[1]then[Tomorrow]] ~[<n>match[-1]then[Yesterday]] ~[<n>compare:number:lt[0]multiply[-1]addsuffix[d overdue]] ~[<n>addprefix[in ]addsuffix[ days]]
+\function prod.due-class(n) [<n>compare:number:lt[0]then[overdue]] ~[<n>match[0]then[today]] ~[<n>compare:number:lt[4]then[soon]] ~[[later]]
+
+\procedure project-pill(name)
+<$list filter="[<name>!is[blank]]" variable="_p">
+<span class="prod-pill" style=`--c:${ [<name>get[color]else[#7c8aa5]] }$`><$link to=<<name>>><$text text=<<name>>/></$link></span>
+</$list>
+\end
+
+\procedure due-badge()
+<$list filter="[{!!due}!is[blank]]" variable="_d">
+<$let n={{{ [{!!due}daysto[]] }}}>
+<$list filter="[all[current]status[done]]" variable="_x" emptyMessage="""<span class=`prod-due prod-due-${ [function[prod.due-class],<n>] }$` title={{!!due}}><$text text={{{ [function[prod.due-label],<n>] }}}/></span>""">
+<span class="prod-due prod-due-done"><$text text={{{ [{!!due}isotw[]format:date[DD mmm]] }}}/></span>
+</$list>
+</$let>
+</$list>
+\end
+
+\procedure prio-badge()
+<$list filter="[{!!priority}match[1]]" variable="_p"><span class="prod-prio prod-prio-1" title="High priority">▲ High</span></$list>
+<$list filter="[{!!priority}match[3]]" variable="_p"><span class="prod-prio prod-prio-3" title="Low priority">▽ Low</span></$list>
+\end
+
+\procedure task-complete-actions()
+<$list filter="[{!!repeat}!is[blank]!match[none]]" variable="_r" emptyMessage="""<$action-setfield status="done" completed={{{ [today[]] }}}/>""">
+<$action-setfield status="todo" last-done={{{ [today[]] }}} due={{{ [{!!due}!is[blank]] ~[today[]] +[isonext{!!repeat}] }}}/>
+</$list>
+\end
+
+\procedure task-toggle-actions()
+<$list filter="[all[current]status[done]]" variable="_a"><$action-setfield status="todo"/><$action-deletefield $field="completed"/></$list>
+<$list filter="[all[current]!status[done]]" variable="_a"><<task-complete-actions>></$list>
+\end
+
+\procedure task-check()
+<$button class="prod-check" tooltip="Complete / reopen" aria-label="Toggle complete" actions=<<task-toggle-actions>>>
+<$list filter="[all[current]status[done]]" variable="_a" emptyMessage="""<span class="prod-check-box"></span>"""><span class="prod-check-box is-on">✓</span></$list>
+</$button>
+\end
+
+\procedure task-focus-actions()
+<$list filter="[all[current]focus[yes]]" variable="_a" emptyMessage="""<$action-setfield focus="yes"/>"""><$action-setfield focus="no"/></$list>
+\end
+
+\procedure task-star()
+<$button class="prod-star" tooltip="Toggle today's focus" aria-label="Toggle focus" actions=<<task-focus-actions>>>
+<$list filter="[all[current]focus[yes]]" variable="_a" emptyMessage="""☆"""><span class="is-on">★</span></$list>
+</$button>
+\end
+
+\procedure task-row()
+<div class={{{ [[prod-task]] [{!!status}match[done]then[is-done]] [{!!focus}match[yes]then[is-focus]] +[join[ ]] }}}>
+<<task-check>>
+<div class="prod-task-main">
+<$link to=<<currentTiddler>> class="prod-task-title"><$text text=<<currentTiddler>>/></$link>
+<div class="prod-task-meta"><$transclude $variable="project-pill" name={{!!project}}/> <<due-badge>> <<prio-badge>> <$list filter="[{!!repeat}!is[blank]!match[none]]" variable="_r"><span class="prod-rep" title="Repeats"><$text text={{!!repeat}}/> ↻</span></$list></div>
+</div>
+<<task-star>>
+</div>
+\end
+
+\procedure task-list(filter,empty:"Nothing here — nice.")
+<$list filter=<<filter>> emptyMessage=`<div class="prod-empty">$(empty)$</div>`>
+<<task-row>>
+</$list>
+\end
+
+\procedure set-status-actions(tid,st)
+<$action-setfield $tiddler=<<tid>> status=<<st>>/>
+<$list filter="[<st>match[done]]" variable="_a"><$action-setfield $tiddler=<<tid>> completed={{{ [today[]] }}}/></$list>
+<$list filter="[<st>!match[done]]" variable="_a"><$action-deletefield $tiddler=<<tid>> $field="completed"/></$list>
+\end
+
+\procedure project-stats(p)
+<$let total={{{ [function[prod.tasks]tag<p>count[]] }}} done={{{ [function[prod.tasks]tag<p>status[done]count[]] }}} pct={{{ [function[prod.tasks]tag<p>count[]compare:number:gt[0]] :then[<done>divide<total>multiply[100]fixed[0]] :else[[0]] }}}>
+<div class="prod-bar"><span style=`width:${ [<pct>] }$%;background:${ [<p>get[color]else[#7c8aa5]] }$`></span></div>
+<div class="prod-bar-label"><$text text=<<done>>/> / <$text text=<<total>>/> done · <$text text=<<pct>>/>%</div>
+</$let>
+\end
+
+\procedure project-select(field:"project")
+<$select field=<<field>> default="">
+<option value="">— none (inbox) —</option>
+<$list filter="[function[prod.projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list>
+</$select>
+\end
+
+\procedure status-changed()
+<$list filter="[{!!status}match[done]]" variable="_a" emptyMessage="""<$action-deletefield $field="completed"/>"""><$action-setfield completed={{{ [{!!completed}!is[blank]] ~[today[]] }}}/></$list>
+\end
+
+\procedure task-fields()
+<div class="prod-fields">
+<label>Status <$select field="status" default="todo" actions=<<status-changed>>><option value="todo">To do</option><option value="doing">In progress</option><option value="waiting">Waiting</option><option value="done">Done</option></$select></label>
+<label>Project <<project-select>></label>
+<label>Due <$edit-text field="due" tag="input" type="date" class="prod-input"/></label>
+<label>Priority <$select field="priority" default="2"><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></$select></label>
+<label>Repeat <$select field="repeat" default="none"><option value="none">Never</option><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></$select></label>
+<label class="prod-inline"><$checkbox field="focus" checked="yes" unchecked="no" default="no"> ★ Today's focus</$checkbox></label>
+</div>
+\end
+
+\procedure note-fields()
+<div class="prod-fields">
+<label>Project <<project-select>></label>
+<label class="prod-inline"><$checkbox field="pinned" checked="yes" unchecked="no" default="no"> 📌 Pinned</$checkbox></label>
+</div>
+\end
+
+\procedure project-fields()
+<div class="prod-fields">
+<label>Status <$select field="status" default="active"><option value="active">Active</option><option value="on-hold">On hold</option><option value="done">Done</option><option value="archived">Archived</option></$select></label>
+<label>Deadline <$edit-text field="due" tag="input" type="date" class="prod-input"/></label>
+<label>Colour <$edit-text field="color" tag="input" type="color" class="prod-input prod-color"/></label>
+</div>
+\end
+
+\procedure quick-task(proj,key:"dash",due:"")
+<$let st={{{ [[$:/state/prod/qt/]addsuffix<key>] }}}>
+<div class="prod-quick">
+<$keyboard key="enter" actions=<<quick-task-add>> class="prod-grow-wrap"><$edit-text tiddler=<<st>> field="name" tag="input" placeholder="Add a task… (press Enter)" class="prod-input prod-full" default=""/></$keyboard>
+<$edit-text tiddler=<<st>> field="due" tag="input" type="date" class="prod-input" default=<<due>>/>
+<$select tiddler=<<st>> field="prio" default="2" class="prod-input"><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></$select>
+<$list filter="[<proj>is[blank]]" variable="_n"><$select tiddler=<<st>> field="proj" default="" class="prod-input"><option value="">Inbox</option><$list filter="[function[prod.active-projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list></$select></$list>
+<$button class="prod-btn primary" actions=<<quick-task-add>>>Add</$button>
+</div>
+</$let>
+\end
+
+\procedure quick-task-add()
+<$let t={{{ [<st>get[name]trim[]] }}} pj={{{ [<proj>!is[blank]] ~[<st>get[proj]] }}}>
+<$list filter="[<t>!is[blank]]" variable="_ok">
+<$action-createtiddler $basetitle=<<t>> $savetitle="$:/temp/prod/last-task" tags={{{ [[Task]] [<pj>!is[blank]] +[addprefix<ob>addsuffix<cb>join[ ]] }}} project=<<pj>> status="todo" priority={{{ [<st>get[prio]else[2]] }}} due={{{ [<st>get[due]else<due>] }}} text=""/>
+<$action-setfield $tiddler=<<st>> name=""/>
+</$list>
+</$let>
+\end
+
+\procedure quick-note(proj,key:"dash")
+<$let st={{{ [[$:/state/prod/qn/]addsuffix<key>] }}}>
+<div class="prod-quick prod-quick-note">
+<$edit-text tiddler=<<st>> field="name" tag="input" placeholder="Note title" class="prod-input prod-grow" default=""/>
+<$list filter="[<proj>is[blank]]" variable="_n"><$select tiddler=<<st>> field="proj" default="" class="prod-input"><option value="">Inbox</option><$list filter="[function[prod.active-projects]sort[title]]" variable="pr"><option value=<<pr>>><$text text=<<pr>>/></option></$list></$select></$list>
+<$edit-text tiddler=<<st>> field="body" tag="textarea" placeholder="Write something… [[Project Name]] links auto-tag it" class="prod-input prod-full" rows="3" default=""/>
+<$button class="prod-btn primary" actions=<<quick-note-add>>>Save note</$button>
+</div>
+</$let>
+\end
+
+\procedure quick-note-add()
+<$let t={{{ [<st>get[name]trim[]] }}} pj={{{ [<proj>!is[blank]] ~[<st>get[proj]] }}}>
+<$list filter="[<t>!is[blank]]" variable="_ok">
+<$action-createtiddler $basetitle=<<t>> tags={{{ [[Note]] [<pj>!is[blank]] +[addprefix<ob>addsuffix<cb>join[ ]] }}} project=<<pj>> text={{{ [<st>get[body]] }}}/>
+<$action-setfield $tiddler=<<st>> name="" body=""/>
+</$list>
+</$let>
+\end
+
+\procedure note-card(unlink)
+<div class="prod-note">
+<div class="prod-note-head">
+<$link to=<<currentTiddler>> class="prod-note-title"><$text text=<<currentTiddler>>/></$link>
+<span><$list filter="[<unlink>!is[blank]]" variable="_u"><$button class="prod-star" tooltip="Unlink from this project" actions="""<$action-deletefield $field="project"/>""">✕</$button></$list>
+<$button class="prod-star" tooltip="Pin" actions=<<note-pin-actions>>><$list filter="[all[current]pinned[yes]]" variable="_a" emptyMessage="""📌"""><span class="is-on">📌</span></$list></$button></span>
+</div>
+<div class="prod-task-meta"><$transclude $variable="project-pill" name={{!!project}}/> <span class="prod-muted"><$view field="modified" format="relativedate"/></span></div>
+<div class="prod-note-excerpt"><$transclude tiddler=<<currentTiddler>> mode="block"/></div>
+</div>
+\end
+
+\procedure note-pin-actions()
+<$list filter="[all[current]pinned[yes]]" variable="_a" emptyMessage="""<$action-setfield pinned="yes"/>"""><$action-setfield pinned="no"/></$list>
+\end
+
+\procedure prod-nav()
+<nav class="prod-nav">
+<div class="prod-navlinks">
+<$list filter="Home Dashboard [[Task Board]] Agenda Calendar Projects Notes Review Search [[Import and Export]] [[Setup Guide]]" variable="pg"><$link to=<<pg>> class={{{ [<pg>match<storyTiddler>then[is-current]] [<pg>match<currentTiddler>then[is-current]] +[join[ ]addprefix[prod-navlink ]] }}}><$text text=<<pg>>/></$link></$list>
+</div>
+<$list filter="[<currentTiddler>!match[Search]]" variable="_s"><$keyboard key="enter" actions="""<$action-navigate $to="Search"/>""" class="prod-navsearch-wrap"><$edit-text tiddler="$:/state/prod/search" field="q" tag="input" placeholder="Search everything…" class="prod-input prod-navsearch" default=""/></$keyboard></$list>
+</nav>
+\end
+
+\procedure search-row()
+<div class="prod-sres">
+<$list filter="[function[prod.kind]match[Task]]" variable="_k" emptyMessage="""<span class="prod-kind"><$text text={{{ [function[prod.kind]match[Project]then[📁]] ~[[📝]] }}}/></span>"""><<task-check>></$list>
+<div class="prod-sres-main">
+<$link to=<<currentTiddler>> class="prod-task-title"><$text text=<<currentTiddler>>/></$link>
+<div class="prod-task-meta"><span class="prod-kindlabel"><$text text={{{ [function[prod.kind]] }}}/></span> <$list filter="[function[prod.kind]!match[Project]]" variable="_k"><$transclude $variable="project-pill" name={{!!project}}/></$list> <$list filter="[{!!status}!is[blank]]" variable="_k"><span class="prod-status"><$text text={{!!status}}/></span></$list> <<due-badge>> <<prio-badge>></div>
+<$list filter="[all[current]has[text]]" variable="_k"><div class="prod-note-excerpt prod-sres-ex"><$transclude tiddler=<<currentTiddler>> mode="block"/></div></$list>
+</div>
+</div>
+\end
+
+\procedure apply-saved-actions()
+<$action-setfield $tiddler="$:/state/prod/search" q={{!!q}} type={{!!type}} project={{!!project}} status={{!!status}} priority={{!!priority}} due={{!!due}} sort={{!!sort}}/>
+\end
+
+\procedure save-search-actions()
+<$let nm={{{ [[$:/state/prod/search]get[savename]trim[]] }}}>
+<$list filter="[<nm>!is[blank]]" variable="_ok">
+<$action-setfield $tiddler={{{ [<nm>addprefix[$:/prod/saved/]] }}} tags="$:/tags/prod/saved" caption=<<nm>> q={{{ [[$:/state/prod/search]get[q]] }}} type={{{ [[$:/state/prod/search]get[type]] }}} project={{{ [[$:/state/prod/search]get[project]] }}} status={{{ [[$:/state/prod/search]get[status]] }}} priority={{{ [[$:/state/prod/search]get[priority]] }}} due={{{ [[$:/state/prod/search]get[due]] }}} sort={{{ [[$:/state/prod/search]get[sort]] }}}/>
+<$action-setfield $tiddler="$:/state/prod/search" savename=""/>
+</$list>
+</$let>
+\end
+
+\procedure sf-best()
+ :sort:string[function[prod.s-rank],<q>]
+\end
+\procedure sf-due()
+ :sort:string[get[due]else[9999-99-99]]
+\end
+\procedure sf-modified()
+ +[sort[modified]reverse[]]
+\end
+\procedure sf-title()
+ +[sort[title]]
+\end
+
+\procedure board-drop()
+<$transclude $variable="set-status-actions" tid=<<actionTiddler>> st=<<col>>/>
+\end
+
+\procedure link-note-actions()
+<$let n={{{ [<lst>get[text]] }}}>
+<$list filter="[<n>!is[blank]]" variable="_ok"><$action-setfield $tiddler=<<n>> project=<<p>>/><$action-setfield $tiddler=<<lst>> text=""/></$list>
+</$let>
+\end
